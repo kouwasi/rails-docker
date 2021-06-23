@@ -6,6 +6,7 @@ volumes:
 services:
   app:
     build: .
+    image: kouwasi/rails-docker
     command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - ./:/app
@@ -19,6 +20,21 @@ services:
       - db
     environment:
       RAILS_ENV: development
+      WEBPACKER_DEV_SERVER_HOST: webpacker
+
+  webpacker:
+    image: kouwasi/rails-docker
+    command: ./bin/webpack-dev-server
+    environment:
+      NODE_ENV: development
+      RAILS_ENV: development
+      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
+    depends_on:
+      - app
+    volumes:
+      - .:/app
+    ports:
+      - 3035:3035
 
   db:
     restart: always
